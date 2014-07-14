@@ -1,3 +1,4 @@
+require("player")
 require("egg")
 
 LEFT_SECTION = 1
@@ -10,40 +11,73 @@ function love.load()
 
 	sectionWidth = screenWidth / 3
 
+	player = Player.create()
+
 	eggs = {}
-
 	eggLastAdded = 0
-
-	playerSection = 2
-
-	playerCaughtEggs = 0
+	dropEggs = true
+	totalEggsDropped = 0
 end
 
 function love.update(dt)
-	-- add eggs if needed
-	-- for now, add another every second
-
-	if (eggLastAdded > 1) then
-		eggLastAdded = 0
-		table.insert(eggs, Egg.create())
-	end
-
-	eggLastAdded = eggLastAdded + dt
+	addEggs(dt)
 
 	-- check for player section
 	if love.mouse.isDown('l') then
-		checkPlayerSection()
+		player:checkSection()
 	else 
-		playerSection = CENTER_SECTION
+		player.section = CENTER_SECTION
 	end
 
+	updateEggs(dt)
+end
+
+function love.draw()
+	love.graphics.push()
+	love.graphics.scale(scaleWidth, scaleHeight)
+
+	-- draw score
+	love.graphics.print(player.caughtEggs, 20, 20)
+
+	-- draw lines for sections
+    love.graphics.line(sectionWidth, 0, sectionWidth, screenHeight)
+    love.graphics.line(screenWidth - sectionWidth, 0, screenWidth - sectionWidth, screenHeight)
+
+    -- draw the eggs
+	for key, value in ipairs(eggs) do
+		value:draw()
+	end
+
+	-- draw the player
+	player:updatePosition()
+	love.graphics.rectangle("fill", player.x, player.y, 50, 50)
+
+	love.graphics.pop()
+end
+
+function addEggs(dt)
+	-- add eggs if needed
+	-- for now, add another every second
+	if (eggLastAdded > 1 and dropEggs) then
+		eggLastAdded = 0
+		table.insert(eggs, Egg.create())
+		totalEggsDropped = totalEggsDropped + 1
+		if totalEggsDropped >= 10 then
+			dropEggs = false
+		end
+	end
+
+	eggLastAdded = eggLastAdded + dt
+end
+
+function updateEggs(dt)
 	-- update egg positions
 	for key, value in ipairs(eggs) do
 		value:move(dt)
 
-		if value.section == playerSection and value.collectable then
+		if value.section == player.section and value.collectable then
 			-- credit the player with catching the egg
-			playerCaughtEggs = playerCaughtEggs + 1
+			player.caughtEggs = player.caughtEggs + 1
 
 			-- remove the egg from the model
 			table.remove(eggs, key)
@@ -57,36 +91,8 @@ function love.update(dt)
 	end
 end
 
-function love.draw()
-	love.graphics.push()
-	love.graphics.scale(scaleWidth, scaleHeight)
+function checkGameEnd()
 
-	-- draw score
-	love.graphics.print(playerCaughtEggs, 20, 20)
-
-	-- draw lines for sections
-    love.graphics.line(sectionWidth, 0, sectionWidth, 600)
-    love.graphics.line(screenWidth - sectionWidth, 0, screenWidth - sectionWidth, 600)
-
-    -- draw the eggs
-	for key, value in ipairs(eggs) do
-		value:draw()
-	end
-
-	-- draw the player
-	
-
-	love.graphics.pop()
-end
-
-function checkPlayerSection()
-	if love.mouse.getX() > 0 and love.mouse.getX() < sectionWidth then
-		playerSection = LEFT_SECTION
-	elseif love.mouse.getX() > screenWidth - sectionWidth and love.mouse.getX() < screenWidth then
-		playerSection = RIGHT_SECTION
-	else
-		playerSection = CENTER_SECTION
-	end
 end
 
 function love.resize(w, h)

@@ -46,7 +46,7 @@ end
 
 -- is this egg in the region that can be picked up by the player?
 function Egg:checkCollectable()
-	if self.y < screenHeight and self.y > screenHeight - 100 then
+	if self.y < screenHeight and self.y > screenHeight - 40 then
 		self.collectable = true
 	end
 end
