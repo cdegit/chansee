@@ -3,7 +3,7 @@ Egg.__index = Egg
 
 math.randomseed(os.time())
 
-local gravity = 0.8
+local gravity = 10
 
 function Egg.create()
    local egg = {}             -- our new object
@@ -11,7 +11,7 @@ function Egg.create()
    egg.section = math.random(1, 3)
    egg.x = (sectionWidth / 2) + ((egg.section - 1) * sectionWidth) 
    egg.y = 0
-   egg.dy = 300
+   egg.dy = 70
    egg.visible = true
    egg.collectable = false
    return egg
@@ -24,7 +24,7 @@ function Egg:draw()
 	love.graphics.translate(self.x, self.y)
 
 	love.graphics.setColor(255, 0, 0)
-	love.graphics.circle("fill", 0, 0, 10, 100)
+	love.graphics.circle("fill", 0, 0, 10, 10)
 	love.graphics.setColor(r, g, b, a)
 	
 	love.graphics.pop()

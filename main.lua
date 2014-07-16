@@ -1,9 +1,14 @@
 require("player")
 require("egg")
+require("button")
 
 LEFT_SECTION = 1
 CENTER_SECTION = 2
 RIGHT_SECTION = 3
+
+EGG_TOTAL = 5
+
+GAME_STATES = {['START'] = 1, ['PLAYING'] = 2, ['END'] = 3, ['RESTART'] = 4}
 
 function love.load() 
 	screenWidth = love.graphics.getWidth()
@@ -13,26 +18,55 @@ function love.load()
 
 	player = Player.create()
 
-	eggs = {}
-	eggLastAdded = 0
-	dropEggs = true
-	totalEggsDropped = 0
+	resetValues()
+
+	currentState = GAME_STATES.START
+
+	button = Button.create(screenWidth / 2, screenHeight / 2, "Start Game")
 end
 
 function love.update(dt)
-	addEggs(dt)
+	if currentState == GAME_STATES.START then
 
-	-- check for player section
-	if love.mouse.isDown('l') then
-		player:checkSection()
-	else 
-		player.section = CENTER_SECTION
+	elseif currentState == GAME_STATES.PLAYING then
+		gameUpdateLoop(dt)
+	
+	elseif currentState == GAME_STATES.END then
+
+	elseif currentState == GAME_STATES.RESTART then
+		resetValues()
+
+		currentState = GAME_STATES.PLAYING
 	end
-
-	updateEggs(dt)
 end
 
 function love.draw()
+	if currentState == GAME_STATES.START then
+		button:draw()
+	elseif currentState == GAME_STATES.PLAYING then
+		gameDrawLoop()
+	
+	elseif currentState == GAME_STATES.END then
+		button:draw()
+	end
+end
+
+function gameUpdateLoop(dt)
+		addEggs(dt)
+
+		-- check for player section
+		if love.mouse.isDown('l') then
+			player:checkSection()
+		else 
+			player.section = CENTER_SECTION
+		end
+
+		updateEggs(dt)
+
+		checkGameEnd()
+end
+
+function gameDrawLoop()
 	love.graphics.push()
 	love.graphics.scale(scaleWidth, scaleHeight)
 
@@ -62,7 +96,8 @@ function addEggs(dt)
 		eggLastAdded = 0
 		table.insert(eggs, Egg.create())
 		totalEggsDropped = totalEggsDropped + 1
-		if totalEggsDropped >= 10 then
+		
+		if totalEggsDropped == EGG_TOTAL then
 			dropEggs = false
 		end
 	end
@@ -91,11 +126,42 @@ function updateEggs(dt)
 	end
 end
 
-function checkGameEnd()
+function startGame()
+	currentState = GAME_STATES.PLAYING
+end
 
+function restartGame()
+	currentState = GAME_STATES.RESTART
+end
+
+function resetValues()
+	eggs = {}
+	eggLastAdded = 0
+	dropEggs = true
+	totalEggsDropped = 0
+	player.caughtEggs = 0
+end
+
+function checkGameEnd()
+	if totalEggsDropped == EGG_TOTAL and table.getn(eggs) == 0 then
+		currentState = GAME_STATES.END
+		button.text = "Replay?"
+		button.type = "restart"
+	end
 end
 
 function love.resize(w, h)
 	scaleWidth = w / 800
 	scaleHeight = h / 576
+
+	screenWidth = love.graphics.getWidth()
+	screenHeight = love.graphics.getHeight()
+	sectionWidth = screenWidth / 3
+end
+
+function love.mousepressed(x, y, b)
+	-- forward to other mouse pressed handlers
+	if b == 'l' then
+		button:mousepressed(x, y)
+	end 
 end
