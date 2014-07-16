@@ -6,10 +6,10 @@ function Player.create()
    setmetatable(player,Player)  
 
    player.section = CENTER_SECTION
-   player.width = 50
-   player.height = 50
+   player.width = 70
+   player.height = 70
    player.x = (sectionWidth / 2) + ((player.section - 1) * sectionWidth) - (player.width / 2) 
-   player.y = screenHeight - 50
+   player.y = screenHeight - player.height
 
    player.caughtEggs = 0
    return player

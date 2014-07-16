@@ -11,6 +11,9 @@ EGG_TOTAL = 5
 GAME_STATES = {['START'] = 1, ['PLAYING'] = 2, ['END'] = 3, ['RESTART'] = 4}
 
 function love.load() 
+	local font = love.graphics.newFont(18)
+	love.graphics.setFont(font)
+
 	screenWidth = love.graphics.getWidth()
 	screenHeight = love.graphics.getHeight()
 
@@ -84,7 +87,7 @@ function gameDrawLoop()
 
 	-- draw the player
 	player:updatePosition()
-	love.graphics.rectangle("fill", player.x, player.y, 50, 50)
+	love.graphics.rectangle("fill", player.x, player.y, player.width, player.height)
 
 	love.graphics.pop()
 end

@@ -24,7 +24,7 @@ function Egg:draw()
 	love.graphics.translate(self.x, self.y)
 
 	love.graphics.setColor(255, 0, 0)
-	love.graphics.circle("fill", 0, 0, 10, 10)
+	love.graphics.circle("fill", 0, 0, sectionWidth / 10, sectionWidth / 10)
 	love.graphics.setColor(r, g, b, a)
 	
 	love.graphics.pop()

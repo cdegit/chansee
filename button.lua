@@ -5,8 +5,8 @@ function Button.create(x, y, text)
    local button = {}             -- our new object
    setmetatable(button, Button)  
    
-   button.width = 150
-   button.height = 50
+   button.width = sectionWidth
+   button.height = sectionWidth / 3
 
    button.x = x - button.width / 2
    button.y = y - button.height / 2
@@ -28,10 +28,10 @@ function Button:draw()
 	local r, g, b, a = love.graphics.getColor()
 	love.graphics.setColor(self.r, self.g, self.b, 200)
 
-	love.graphics.rectangle("fill", 0, 0, 150, 50)
+	love.graphics.rectangle("fill", 0, 0, self.width, self.height)
 
-	love.graphics.setColor(255, 255, 255)
-	love.graphics.print(self.text, 10, self.height / 2 - 7)
+	love.graphics.setColor(0, 0, 0)
+	love.graphics.print(self.text, 10, self.height / 2 - 10)
 
 	love.graphics.setColor(r, g, b, a)
 	love.graphics.pop()
