@@ -23,7 +23,7 @@ function love.load()
 	player = Player.create()
 
 	levels = {
-		{eggAcceleration = 1, eggAccelerationIncrement = 0.5, baseEggDropRate = 1, eggDropRateAcceleration = 1, eggTotal = 15},
+		{eggAcceleration = 1, eggAccelerationIncrement = 0.5, baseEggDropRate = 1, eggDropRateAcceleration = 1, eggTotal = 10},
 		{eggAcceleration = 1, eggAccelerationIncrement = 0.5, baseEggDropRate = 1, eggDropRateAcceleration = 1, eggTotal = 5}
 	} -- not actually a collection of level objects, just data with which to populate the level
 
@@ -62,6 +62,9 @@ function love.draw()
 	elseif currentState == GAME_STATES.PLAYING then
 		gameDrawLoop()
 	
+	elseif currentState == GAME_STATES.LEVEL_CHANGE then
+		gameDrawLoop()
+
 	elseif currentState == GAME_STATES.END then
 		button:draw()
 	end
@@ -158,7 +161,9 @@ function resetValues()
 	totalEggsDropped = 0
 	player.caughtEggs = 0
 
-	currentLevel:reset()
+	if currentState == GAME_STATES.RESTART then
+		currentLevel = Level.create(1, levels[1].eggAcceleration, levels[1].eggAccelerationIncrement, levels[1].baseEggDropRate, levels[1].eggDropRateAcceleration, levels[1].eggTotal)
+	end
 end
 
 function checkLevelChange()

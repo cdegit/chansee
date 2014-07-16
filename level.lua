@@ -22,7 +22,3 @@ end
 function Level:update(dt)
    self.eggAcceleration = self.eggAcceleration + self.eggAccelerationIncrement
 end
-
-function Level:reset()
-   self.eggAcceleration = self.initialEggAcceleration
-end
