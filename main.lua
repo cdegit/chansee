@@ -171,6 +171,7 @@ function resetValues()
 	totalEggsDropped = 0
 
 	if currentState == GAME_STATES.RESTART then
+		player.caughtEggs = 0
 		currentLevel = Level.create(1, levels[1].eggAcceleration, levels[1].eggAccelerationIncrement, levels[1].baseEggDropRate, levels[1].eggDropRateAcceleration, levels[1].eggTotal)
 	end
 end

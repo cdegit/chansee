@@ -6,15 +6,32 @@ math.randomseed(os.time())
 local gravity = 10
 
 function Egg.create(levelAcceleration)
-   local egg = {}             -- our new object
-   setmetatable(egg,Egg)  
-   egg.section = math.random(1, 3)
-   egg.x = (sectionWidth / 2) + ((egg.section - 1) * sectionWidth) 
-   egg.y = 0
-   egg.dy = 70 + levelAcceleration
-   egg.visible = true
-   egg.collectable = false
-   return egg
+	local egg = {}             -- our new object
+	setmetatable(egg,Egg)  
+	egg.section = math.random(1, 3)
+	egg.x = (sectionWidth / 2) + ((egg.section - 1) * sectionWidth) 
+	egg.y = 0
+	egg.dy = 70 + levelAcceleration
+	egg.visible = true
+	egg.collectable = false
+
+	local typeNumber = math.random(1, 10)
+	if typeNumber <= 9 then
+		egg.type = 'normal'
+		
+		egg.r = 0
+		egg.g = 255
+		egg.b = 100
+
+	elseif typeNumber == 10 then
+		egg.type = 'bomb'
+
+		egg.r = 255
+		egg.g = 0
+		egg.b = 0
+	end
+
+	return egg
 end
 
 function Egg:draw()
@@ -23,7 +40,7 @@ function Egg:draw()
 	
 	love.graphics.translate(self.x, self.y)
 
-	love.graphics.setColor(255, 0, 0)
+	love.graphics.setColor(self.r, self.g, self.b)
 	love.graphics.circle("fill", 0, 0, sectionWidth / 10, sectionWidth / 10)
 	love.graphics.setColor(r, g, b, a)
 	
