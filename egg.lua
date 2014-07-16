@@ -5,13 +5,13 @@ math.randomseed(os.time())
 
 local gravity = 10
 
-function Egg.create()
+function Egg.create(levelAcceleration)
    local egg = {}             -- our new object
    setmetatable(egg,Egg)  
    egg.section = math.random(1, 3)
    egg.x = (sectionWidth / 2) + ((egg.section - 1) * sectionWidth) 
    egg.y = 0
-   egg.dy = 70
+   egg.dy = 70 + levelAcceleration
    egg.visible = true
    egg.collectable = false
    return egg

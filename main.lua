@@ -1,4 +1,5 @@
 require("player")
+require("level")
 require("egg")
 require("button")
 
@@ -6,9 +7,12 @@ LEFT_SECTION = 1
 CENTER_SECTION = 2
 RIGHT_SECTION = 3
 
-EGG_TOTAL = 5
+EGG_TOTAL = 15
 
 GAME_STATES = {['START'] = 1, ['PLAYING'] = 2, ['END'] = 3, ['RESTART'] = 4}
+
+LEVEL_EGG_DROP_ACCELERATION = 1
+LEVEL_EGG_ACCELERATION = 1
 
 function love.load() 
 	local font = love.graphics.newFont(18)
@@ -20,6 +24,8 @@ function love.load()
 	sectionWidth = screenWidth / 3
 
 	player = Player.create()
+
+	currentLevel = Level.create()
 
 	resetValues()
 
@@ -41,6 +47,9 @@ function love.update(dt)
 
 		currentState = GAME_STATES.PLAYING
 	end
+
+	LEVEL_EGG_ACCELERATION = LEVEL_EGG_ACCELERATION + 0.5
+	currentLevel:update()
 end
 
 function love.draw()
@@ -95,12 +104,12 @@ end
 function addEggs(dt)
 	-- add eggs if needed
 	-- for now, add another every second
-	if (eggLastAdded > 1 and dropEggs) then
+	if (eggLastAdded > currentLevel.baseEggDropRate and dropEggs) then
 		eggLastAdded = 0
-		table.insert(eggs, Egg.create())
+		table.insert(eggs, Egg.create(currentLevel.eggAcceleration))
 		totalEggsDropped = totalEggsDropped + 1
 		
-		if totalEggsDropped == EGG_TOTAL then
+		if totalEggsDropped == currentLevel.eggTotal then
 			dropEggs = false
 		end
 	end
@@ -143,10 +152,12 @@ function resetValues()
 	dropEggs = true
 	totalEggsDropped = 0
 	player.caughtEggs = 0
+
+	currentLevel:reset()
 end
 
 function checkGameEnd()
-	if totalEggsDropped == EGG_TOTAL and table.getn(eggs) == 0 then
+	if totalEggsDropped == currentLevel.eggTotal and table.getn(eggs) == 0 then
 		currentState = GAME_STATES.END
 		button.text = "Replay?"
 		button.type = "restart"
@@ -165,6 +176,8 @@ end
 function love.mousepressed(x, y, b)
 	-- forward to other mouse pressed handlers
 	if b == 'l' then
-		button:mousepressed(x, y)
+		if currentState == GAME_STATES.START or currentState == GAME_STATES.END then
+			button:mousepressed(x, y)
+		end
 	end 
 end
