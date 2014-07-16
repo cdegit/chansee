@@ -29,6 +29,8 @@ function love.load()
 
 	currentLevel = Level.create(1, levels[1].eggAcceleration, levels[1].eggAccelerationIncrement, levels[1].baseEggDropRate, levels[1].eggDropRateAcceleration, levels[1].eggTotal)
 
+	levelChangePause = 1.5
+
 	resetValues()
 
 	currentState = GAME_STATES.START
@@ -43,7 +45,15 @@ function love.update(dt)
 		gameUpdateLoop(dt)
 
 	elseif currentState == GAME_STATES.LEVEL_CHANGE then
-		currentState = GAME_STATES.PLAYING
+		gameUpdateLoop(dt)
+
+		levelChangePause = levelChangePause - dt
+
+		if levelChangePause <= 0 then
+			resetValues()
+			currentState = GAME_STATES.PLAYING
+			levelChangePause = 1.5
+		end
 	
 	elseif currentState == GAME_STATES.END then
 
@@ -64,6 +74,7 @@ function love.draw()
 	
 	elseif currentState == GAME_STATES.LEVEL_CHANGE then
 		gameDrawLoop()
+		drawLevelChange()
 
 	elseif currentState == GAME_STATES.END then
 		button:draw()
@@ -158,7 +169,6 @@ function resetValues()
 	eggLastAdded = 0
 	dropEggs = true
 	totalEggsDropped = 0
-	player.caughtEggs = 0
 
 	if currentState == GAME_STATES.RESTART then
 		currentLevel = Level.create(1, levels[1].eggAcceleration, levels[1].eggAccelerationIncrement, levels[1].baseEggDropRate, levels[1].eggDropRateAcceleration, levels[1].eggTotal)
@@ -168,16 +178,27 @@ end
 function checkLevelChange()
 	if totalEggsDropped == currentLevel.eggTotal and table.getn(eggs) == 0 and currentLevel.index ~= table.getn(levels) then
 		currentState = GAME_STATES.LEVEL_CHANGE
-		resetValues()
 
 		local i = currentLevel.index + 1
 		currentLevel = Level.create(i, levels[i].eggAcceleration, levels[i].eggAccelerationIncrement, levels[i].baseEggDropRate, levels[i].eggDropRateAcceleration, levels[i].eggTotal)
+
+		dropEggs = false
 
 	elseif totalEggsDropped == currentLevel.eggTotal and table.getn(eggs) == 0 and currentLevel.index == table.getn(levels) then
 		currentState = GAME_STATES.END
 		button.text = "Replay?"
 		button.type = "restart"
 	end
+end
+
+function drawLevelChange()
+	love.graphics.push()
+	love.graphics.translate(screenWidth / 2 - 50, screenHeight / 2 - 20)
+
+	love.graphics.print("Level Up!", 0, 0)
+	love.graphics.print(player.caughtEggs, 0, 20)
+
+	love.graphics.pop()
 end
 
 function love.resize(w, h)
