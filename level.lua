@@ -1,24 +1,28 @@
 Level = {}
 Level.__index = Level
 
-function Level.create()
+function Level.create(index, eggAcceleration, eggAccelerationIncrement, baseEggDropRate, eggDropRateAcceleration, eggTotal)
    local level = {}             -- our new object
    setmetatable(level, Level)  
 
-   level.eggAcceleration = 1
+   level.index = index
 
-   level.baseEggDropRate = 1 -- once per second
-   level.eggDropRateAcceleration = 1
+   level.initialEggAcceleration = eggAcceleration
+   level.eggAcceleration = eggAcceleration
+   level.eggAccelerationIncrement = eggAccelerationIncrement
 
-   level.eggTotal = 15
+   level.baseEggDropRate = baseEggDropRate 
+   level.eggDropRateAcceleration = eggDropRateAcceleration
+
+   level.eggTotal = eggTotal
 
    return level
 end
 
 function Level:update(dt)
-   self.eggAcceleration = self.eggAcceleration + 0.5
+   self.eggAcceleration = self.eggAcceleration + self.eggAccelerationIncrement
 end
 
 function Level:reset()
-   self.eggAcceleration = 1
+   self.eggAcceleration = self.initialEggAcceleration
 end

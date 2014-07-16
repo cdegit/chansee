@@ -9,10 +9,7 @@ RIGHT_SECTION = 3
 
 EGG_TOTAL = 15
 
-GAME_STATES = {['START'] = 1, ['PLAYING'] = 2, ['END'] = 3, ['RESTART'] = 4}
-
-LEVEL_EGG_DROP_ACCELERATION = 1
-LEVEL_EGG_ACCELERATION = 1
+GAME_STATES = {['START'] = 1, ['PLAYING'] = 2, ['LEVEL_CHANGE'] = 3, ['END'] = 4, ['RESTART'] = 5}
 
 function love.load() 
 	local font = love.graphics.newFont(18)
@@ -25,7 +22,12 @@ function love.load()
 
 	player = Player.create()
 
-	currentLevel = Level.create()
+	levels = {
+		{eggAcceleration = 1, eggAccelerationIncrement = 0.5, baseEggDropRate = 1, eggDropRateAcceleration = 1, eggTotal = 15},
+		{eggAcceleration = 1, eggAccelerationIncrement = 0.5, baseEggDropRate = 1, eggDropRateAcceleration = 1, eggTotal = 5}
+	} -- not actually a collection of level objects, just data with which to populate the level
+
+	currentLevel = Level.create(1, levels[1].eggAcceleration, levels[1].eggAccelerationIncrement, levels[1].baseEggDropRate, levels[1].eggDropRateAcceleration, levels[1].eggTotal)
 
 	resetValues()
 
@@ -39,6 +41,9 @@ function love.update(dt)
 
 	elseif currentState == GAME_STATES.PLAYING then
 		gameUpdateLoop(dt)
+
+	elseif currentState == GAME_STATES.LEVEL_CHANGE then
+		currentState = GAME_STATES.PLAYING
 	
 	elseif currentState == GAME_STATES.END then
 
@@ -48,7 +53,6 @@ function love.update(dt)
 		currentState = GAME_STATES.PLAYING
 	end
 
-	LEVEL_EGG_ACCELERATION = LEVEL_EGG_ACCELERATION + 0.5
 	currentLevel:update()
 end
 
@@ -75,7 +79,8 @@ function gameUpdateLoop(dt)
 
 		updateEggs(dt)
 
-		checkGameEnd()
+		checkLevelChange()
+		--checkGameEnd()
 end
 
 function gameDrawLoop()
@@ -154,6 +159,21 @@ function resetValues()
 	player.caughtEggs = 0
 
 	currentLevel:reset()
+end
+
+function checkLevelChange()
+	if totalEggsDropped == currentLevel.eggTotal and table.getn(eggs) == 0 and currentLevel.index ~= table.getn(levels) then
+		currentState = GAME_STATES.LEVEL_CHANGE
+		resetValues()
+
+		local i = currentLevel.index + 1
+		currentLevel = Level.create(i, levels[i].eggAcceleration, levels[i].eggAccelerationIncrement, levels[i].baseEggDropRate, levels[i].eggDropRateAcceleration, levels[i].eggTotal)
+
+	elseif totalEggsDropped == currentLevel.eggTotal and table.getn(eggs) == 0 and currentLevel.index == table.getn(levels) then
+		currentState = GAME_STATES.END
+		button.text = "Replay?"
+		button.type = "restart"
+	end
 end
 
 function checkGameEnd()
