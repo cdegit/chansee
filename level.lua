@@ -21,4 +21,5 @@ end
 
 function Level:update(dt)
    self.eggAcceleration = self.eggAcceleration + self.eggAccelerationIncrement
+   self.baseEggDropRate = self.baseEggDropRate - self.eggDropRateAcceleration
 end
