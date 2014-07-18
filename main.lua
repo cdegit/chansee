@@ -38,6 +38,8 @@ function love.load()
 	leftEggs = {}
 	centerEggs = {}
 	rightEggs = {}
+
+	tempLevelScore = 0
 	
 	button = Button.create(screenWidth / 2, screenHeight / 2, "Start Game")
 end
@@ -166,11 +168,10 @@ function updateEggsLoop(dt, eggArray)
 	for key, value in ipairs(eggArray) do
 		value:move(dt)
 
-		print(value.section)
-
 		if value.section == player.section and value.collectable then
 			-- credit the player with catching the egg
 			player.caughtEggs = player.caughtEggs + 1
+			tempLevelScore = tempLevelScore + 1
 
 			-- remove the egg from the model
 			table.remove(eggArray, key)
@@ -200,6 +201,8 @@ function resetValues()
 	eggLastAdded = 0
 	dropEggs = true
 	totalEggsDropped = 0
+
+	tempLevelScore = 0
 
 	if currentState == GAME_STATES.RESTART then
 		player.caughtEggs = 0
@@ -232,7 +235,7 @@ function drawLevelChange()
 	love.graphics.translate(screenWidth / 2 - 50, screenHeight / 2 - 20)
 
 	love.graphics.print("Level Up!", 0, 0)
-	love.graphics.print(player.caughtEggs, 0, 20)
+	love.graphics.print(tempLevelScore, 0, 20)
 
 	love.graphics.pop()
 end
