@@ -35,6 +35,10 @@ function love.load()
 
 	currentState = GAME_STATES.START
 
+	leftEggs = {}
+	centerEggs = {}
+	rightEggs = {}
+	
 	button = Button.create(screenWidth / 2, screenHeight / 2, "Start Game")
 end
 
@@ -107,8 +111,15 @@ function gameDrawLoop()
     love.graphics.line(sectionWidth, 0, sectionWidth, screenHeight)
     love.graphics.line(screenWidth - sectionWidth, 0, screenWidth - sectionWidth, screenHeight)
 
-    -- draw the eggs
-	for key, value in ipairs(eggs) do
+	for key, value in ipairs(leftEggs) do
+		value:draw()
+	end
+
+	for key, value in ipairs(centerEggs) do
+		value:draw()
+	end
+
+	for key, value in ipairs(rightEggs) do
 		value:draw()
 	end
 
@@ -124,7 +135,17 @@ function addEggs(dt)
 	-- for now, add another every second
 	if (eggLastAdded > currentLevel.baseEggDropRate and dropEggs) then
 		eggLastAdded = 0
-		table.insert(eggs, Egg.create(currentLevel.eggAcceleration))
+		
+		local egg = Egg.create(currentLevel.eggAcceleration)
+
+		if egg.section == 1 then
+			table.insert(leftEggs, egg)
+		elseif egg.section == 2 then
+			table.insert(centerEggs, egg)
+		elseif egg.section == 3 then
+			table.insert(rightEggs, egg)
+		end
+		
 		totalEggsDropped = totalEggsDropped + 1
 		
 		if totalEggsDropped == currentLevel.eggTotal then
@@ -136,22 +157,29 @@ function addEggs(dt)
 end
 
 function updateEggs(dt)
-	-- update egg positions
-	for key, value in ipairs(eggs) do
+	updateEggsLoop(dt, leftEggs)
+	updateEggsLoop(dt, centerEggs)
+	updateEggsLoop(dt, rightEggs)
+end
+
+function updateEggsLoop(dt, eggArray)
+	for key, value in ipairs(eggArray) do
 		value:move(dt)
+
+		print(value.section)
 
 		if value.section == player.section and value.collectable then
 			-- credit the player with catching the egg
 			player.caughtEggs = player.caughtEggs + 1
 
 			-- remove the egg from the model
-			table.remove(eggs, key)
+			table.remove(eggArray, key)
 		end
 
 		-- clean up eggs that have fallen off screen
 		-- also, maybe remove points from the player or do something
 		if not value.visible then
-			table.remove(eggs, key)
+			table.remove(eggArray, key)
 		end
 	end
 end
@@ -165,7 +193,10 @@ function restartGame()
 end
 
 function resetValues()
-	eggs = {}
+	leftEggs = {}
+	rightEggs = {}
+	centerEggs = {}
+
 	eggLastAdded = 0
 	dropEggs = true
 	totalEggsDropped = 0
@@ -177,7 +208,7 @@ function resetValues()
 end
 
 function checkLevelChange()
-	if totalEggsDropped == currentLevel.eggTotal and table.getn(eggs) == 0 and currentLevel.index ~= table.getn(levels) then
+	if totalEggsDropped == currentLevel.eggTotal and currentEggTotal() == 0 and currentLevel.index ~= table.getn(levels) then
 		currentState = GAME_STATES.LEVEL_CHANGE
 
 		local i = currentLevel.index + 1
@@ -185,11 +216,15 @@ function checkLevelChange()
 
 		dropEggs = false
 
-	elseif totalEggsDropped == currentLevel.eggTotal and table.getn(eggs) == 0 and currentLevel.index == table.getn(levels) then
+	elseif totalEggsDropped == currentLevel.eggTotal and currentEggTotal() == 0 and currentLevel.index == table.getn(levels) then
 		currentState = GAME_STATES.END
 		button.text = "Replay?"
 		button.type = "restart"
 	end
+end
+
+function currentEggTotal()
+	return table.getn(leftEggs) + table.getn(centerEggs) + table.getn(rightEggs)
 end
 
 function drawLevelChange()
